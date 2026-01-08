@@ -85,6 +85,19 @@ jobs:
     - name: Install Fastlane
       run: gem install fastlane
     
+    - name: Create API Key file
+      run: |
+        cd target-repo
+        mkdir -p .private_keys
+        cat > .private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}.p8 << 'EOF'
+        -----BEGIN PRIVATE KEY-----
+        MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgifib21Mf+cSHv9S6
+        AoHkFkd2GFpXZ22AvrgtSP9cmGCgCgYIKoZIzj0DAQehRANCAARePKPxfPXkFAq/
+        mcV5YdQ0XkNANofE/30la4lXOleCkJihMPvgt6W6e1sjP+4+aFOv7nL1aRCctFR/
+        h/IIUUyP
+        -----END PRIVATE KEY-----
+        EOF
+
     - name: Create Fastfile
       run: |
         cd target-repo
@@ -96,9 +109,6 @@ jobs:
              https://api.github.com/repos/bariamanoj/manzzworkflow/contents/Fastfile
 
     - name: Create metadata structure
-      run: |
-        cd target-repo
-        mkdir -p fastlane/metadata/en-US
         echo "${{ github.event.inputs.app_name }}" > fastlane/metadata/en-US/name.txt
         echo "${{ github.event.inputs.app_description }}" > fastlane/metadata/en-US/description.txt
         echo "${{ github.event.inputs.marketing_url }}" > fastlane/metadata/en-US/marketing_url.txt

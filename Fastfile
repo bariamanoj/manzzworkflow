@@ -43,16 +43,16 @@ platform :ios do
 
   desc "Setup code signing"
   lane :setup_signing do
-    # Debug API key
-    UI.message("API Key ID length: #{ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']&.length || 'nil'}")
-    UI.message("API Key Issuer ID length: #{ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']&.length || 'nil'}")
-    UI.message("API Key content length: #{ENV['APP_STORE_CONNECT_API_KEY_KEY']&.length || 'nil'}")
+    # Use API key file instead of environment variable
+    api_key_path = ".private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']}.p8"
     
-    # Use the API key directly (GitHub should preserve the content correctly)
-    api_key_content = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+    UI.message("API Key file path: #{api_key_path}")
+    UI.message("API Key file exists: #{File.exist?(api_key_path)}")
     
-    # Debug first and last lines
-    if api_key_content
+    if File.exist?(api_key_path)
+      api_key_content = File.read(api_key_path)
+      UI.message("API Key content length: #{api_key_content.length}")
+      
       lines = api_key_content.split("\n")
       UI.message("First line: '#{lines.first}'")
       UI.message("Last line: '#{lines.last}'")
@@ -62,7 +62,7 @@ platform :ios do
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-      key_content: api_key_content
+      key_filepath: api_key_path
     )
 
     # Test API key with a simple call
@@ -70,6 +70,7 @@ platform :ios do
       require 'jwt'
       require 'net/http'
       
+      api_key_content = File.read(api_key_path)
       private_key = OpenSSL::PKey::EC.new(api_key_content)
       payload = {
         iss: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
