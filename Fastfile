@@ -48,18 +48,21 @@ platform :ios do
     UI.message("API Key Issuer ID length: #{ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']&.length || 'nil'}")
     UI.message("API Key content length: #{ENV['APP_STORE_CONNECT_API_KEY_KEY']&.length || 'nil'}")
     
-    # Debug first and last lines of the key
-    if ENV['APP_STORE_CONNECT_API_KEY_KEY']
-      lines = ENV['APP_STORE_CONNECT_API_KEY_KEY'].split("\n")
-      UI.message("First line: '#{lines.first}'")
-      UI.message("Last line: '#{lines.last}'")
-      UI.message("Total lines: #{lines.length}")
+    # Decode base64 API key
+    decoded_key = Base64.decode64(ENV["APP_STORE_CONNECT_API_KEY_KEY"])
+    
+    # Debug first and last lines of the decoded key
+    if decoded_key
+      lines = decoded_key.split("\n")
+      UI.message("Decoded first line: '#{lines.first}'")
+      UI.message("Decoded last line: '#{lines.last}'")
+      UI.message("Decoded total lines: #{lines.length}")
     end
     
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-      key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+      key_content: decoded_key
     )
 
     # Test API key with a simple call
@@ -67,7 +70,7 @@ platform :ios do
       require 'jwt'
       require 'net/http'
       
-      private_key = OpenSSL::PKey::EC.new(ENV["APP_STORE_CONNECT_API_KEY_KEY"])
+      private_key = OpenSSL::PKey::EC.new(decoded_key)
       payload = {
         iss: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
         exp: Time.now.to_i + 1200,
