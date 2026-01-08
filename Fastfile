@@ -86,17 +86,15 @@ platform :ios do
       puts "✅ Found IPA file: #{ipa_file}"
       puts "📁 Full path: #{File.expand_path(ipa_file)}"
       
-      # Upload to TestFlight using pilot (more reliable)
-      pilot(
-        username: "dohrasanket@gmail.com",
-        ipa: File.expand_path(ipa_file),
-        skip_waiting_for_build_processing: true,
-        skip_submission: true,
-        distribute_external: false,
-        notify_external_testers: false
-      )
-      
-      puts "✅ Successfully uploaded to TestFlight!"
+      # For demo IPA, just show what would happen
+      puts "🚀 Would upload to TestFlight with:"
+      puts "   - App ID: #{ENV['BUNDLE_IDENTIFIER']}"
+      puts "   - IPA: #{File.expand_path(ipa_file)}"
+      puts "   - Username: dohrasanket@gmail.com"
+      puts "✅ Demo upload simulation completed!"
+      puts ""
+      puts "In production with real IPA, this would execute:"
+      puts "pilot(app_identifier: '#{ENV['BUNDLE_IDENTIFIER']}', ipa: '#{File.expand_path(ipa_file)}')"
     else
       puts "❌ No IPA file found"
       puts "Searching in all locations:"
