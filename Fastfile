@@ -91,7 +91,7 @@ platform :ios do
       
       # Skip actual build since this is just a demo
       UI.success("Skipping build - no actual iOS project found")
-      return
+      next
     end
 
     gym(
