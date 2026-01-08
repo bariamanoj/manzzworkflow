@@ -84,11 +84,12 @@ platform :ios do
     
     if ipa_file && File.exist?(ipa_file)
       puts "✅ Found IPA file: #{ipa_file}"
+      puts "📁 Full path: #{File.expand_path(ipa_file)}"
       
-      # Upload to TestFlight using upload_to_testflight
-      upload_to_testflight(
+      # Upload to TestFlight using pilot (more reliable)
+      pilot(
         username: "dohrasanket@gmail.com",
-        ipa: ipa_file,
+        ipa: File.expand_path(ipa_file),
         skip_waiting_for_build_processing: true,
         skip_submission: true,
         distribute_external: false,
