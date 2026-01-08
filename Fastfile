@@ -48,6 +48,14 @@ platform :ios do
     UI.message("API Key Issuer ID length: #{ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']&.length || 'nil'}")
     UI.message("API Key content length: #{ENV['APP_STORE_CONNECT_API_KEY_KEY']&.length || 'nil'}")
     
+    # Debug first and last lines of the key
+    if ENV['APP_STORE_CONNECT_API_KEY_KEY']
+      lines = ENV['APP_STORE_CONNECT_API_KEY_KEY'].split("\n")
+      UI.message("First line: '#{lines.first}'")
+      UI.message("Last line: '#{lines.last}'")
+      UI.message("Total lines: #{lines.length}")
+    end
+    
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
