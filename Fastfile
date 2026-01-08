@@ -219,7 +219,5 @@ platform :ios do
     build_ipa
     upload_testflight
     upload_metadata
-    setup_privacy
-    set_pricing
   end
 end
