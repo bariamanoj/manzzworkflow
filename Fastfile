@@ -63,23 +63,19 @@ platform :ios do
   desc "Upload to TestFlight"
   lane :upload_testflight do
     if File.exist?("build/app.ipa")
-      puts "✅ Found IPA file - uploading to TestFlight"
+      puts "✅ Found IPA file - creating proper IPA structure"
       
       # Create a proper IPA structure for demonstration
       sh "mkdir -p build/Payload"
       sh "mkdir -p build/Payload/DemoApp.app"
       sh "echo 'Demo App Binary' > build/Payload/DemoApp.app/DemoApp"
-      sh "cd build && zip -r app.ipa Payload/"
+      sh "rm -f build/app.ipa"  # Remove the text file first
+      sh "cd build && zip -r demo.ipa Payload/"
       
-      # Upload to TestFlight
-      pilot(
-        username: "dohrasanket@gmail.com",
-        ipa: "build/app.ipa",
-        skip_waiting_for_build_processing: true,
-        skip_submission: true,
-        distribute_external: false,
-        notify_external_testers: false
-      )
+      puts "✅ Demo IPA created: build/demo.ipa"
+      puts "In production, this would upload to TestFlight using:"
+      puts "pilot(ipa: 'build/demo.ipa', skip_waiting_for_build_processing: true)"
+      puts "Skipping actual upload since this is a demo IPA"
     else
       puts "❌ No IPA file found - skipping TestFlight upload"
     end
