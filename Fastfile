@@ -2,7 +2,17 @@ default_platform(:ios)
 
 platform :ios do
   before_all do
-    setup_ci if ENV['CI']
+    # Manual CI setup without readonly mode
+    if ENV['CI']
+      create_keychain(
+        name: "fastlane_tmp_keychain",
+        password: "temp_password",
+        default_keychain: true,
+        unlock: true,
+        timeout: 3600,
+        lock_when_sleeps: false
+      )
+    end
   end
 
   desc "Create app on App Store Connect if it doesn't exist"
@@ -11,6 +21,9 @@ platform :ios do
       # Use session-based auth for produce (API key not supported)
       ENV["FASTLANE_SESSION"] = ENV["FASTLANE_SESSION_SECRET"]
       ENV["FASTLANE_PASSWORD"] = ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD_SECRET"]
+      
+      # Debug: Check if session is set
+      UI.message("FASTLANE_SESSION length: #{ENV['FASTLANE_SESSION']&.length || 'nil'}")
       
       produce(
         username: "dohrasanket@gmail.com",
