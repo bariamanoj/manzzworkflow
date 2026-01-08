@@ -109,6 +109,9 @@ jobs:
              https://api.github.com/repos/bariamanoj/manzzworkflow/contents/Fastfile
 
     - name: Create metadata structure
+      run: |
+        cd target-repo
+        mkdir -p fastlane/metadata/en-US
         echo "${{ github.event.inputs.app_name }}" > fastlane/metadata/en-US/name.txt
         echo "${{ github.event.inputs.app_description }}" > fastlane/metadata/en-US/description.txt
         echo "${{ github.event.inputs.marketing_url }}" > fastlane/metadata/en-US/marketing_url.txt
