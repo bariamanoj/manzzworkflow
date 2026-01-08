@@ -1,47 +1,21 @@
 default_platform(:ios)
 
 platform :ios do
-  before_all do
-    # Manual CI setup without readonly mode
-    if ENV['CI']
-      create_keychain(
-        name: "fastlane_tmp_keychain",
-        password: "temp_password",
-        default_keychain: true,
-        unlock: true,
-        timeout: 3600,
-        lock_when_sleeps: false
-      )
-    end
-  end
-
-  desc "Create app on App Store Connect if it doesn't exist"
+  desc "Create app on App Store Connect"
   lane :create_app do
     begin
-      # Check if app already exists first
-      require 'spaceship'
-      Spaceship::ConnectAPI.login(ENV["FASTLANE_SESSION"])
-      
-      existing_app = Spaceship::ConnectAPI::App.find(ENV["BUNDLE_IDENTIFIER"])
-      if existing_app
-        UI.success("App '#{ENV["APP_NAME"]}' already exists (ID: #{existing_app.id})")
-        return
-      end
-      
-      # Create new app if it doesn't exist
       produce(
-        username: "dohrasanket@gmail.com",
         app_identifier: ENV["BUNDLE_IDENTIFIER"],
         app_name: ENV["APP_NAME"],
-        language: "en-US",
+        language: "English",
         app_version: "1.0",
-        sku: "#{ENV["BUNDLE_IDENTIFIER"].gsub('.', '-')}-#{Time.now.to_i}",
-        skip_itc: false
+        sku: ENV["BUNDLE_IDENTIFIER"],
+        team_id: "42FLQUC3A9",
+        itc_team_id: "42FLQUC3A9"
       )
-      UI.success("App created successfully")
+      UI.success("App created successfully!")
     rescue => ex
       UI.error("App creation failed: #{ex.message}")
-      # Continue anyway - app might already exist
     end
   end
 
@@ -58,32 +32,26 @@ platform :ios do
     # Auto-detect workspace or project
     workspace_path = Dir.glob("*.xcworkspace").first
     project_path = Dir.glob("*.xcodeproj").first
-    
-    if workspace_path
-      build_config = { workspace: workspace_path }
-      scheme = File.basename(workspace_path, ".xcworkspace")
-    elsif project_path
-      build_config = { project: project_path }
-      scheme = File.basename(project_path, ".xcodeproj")
-    else
-      UI.important("No .xcworkspace or .xcodeproj found in target repository")
-      UI.important("Creating a minimal iOS project structure for demonstration...")
-      
-      # Create a minimal project structure for demo
-      sh("mkdir -p DemoApp.xcodeproj")
-      sh("touch DemoApp.xcodeproj/project.pbxproj")
-      
-      # Skip actual build since this is just a demo
-      UI.success("Skipping build - no actual iOS project found")
+
+    if workspace_path.nil? && project_path.nil?
+      puts "No .xcworkspace or .xcodeproj found in target repository"
+      puts "Creating a minimal iOS project structure for demonstration..."
+      sh "mkdir -p DemoApp.xcodeproj"
+      sh "touch DemoApp.xcodeproj/project.pbxproj"
+      puts "Skipping build - no actual iOS project found"
       next
     end
 
+    # Build the app
     gym(
-      **build_config,
-      scheme: scheme,
-      export_method: "app-store",
+      scheme: ENV["SCHEME"] || "YourAppScheme",
+      workspace: workspace_path,
+      project: project_path,
+      configuration: "Release",
       output_directory: "./build",
-      output_name: "app.ipa"
+      output_name: "app.ipa",
+      clean: true,
+      export_method: "app-store"
     )
   end
 
@@ -127,62 +95,6 @@ platform :ios do
   lane :set_pricing do
     puts "Skipping pricing setup - API key issues in CI"
     puts "Pricing would be configured here in production"
-  end
-    
-    response = http.request(request)
-    apps_data = JSON.parse(response.body)
-    
-    if apps_data['data'] && !apps_data['data'].empty?
-      app_id = apps_data['data'][0]['id']
-      
-      # Set pricing to free (tier 0)
-      pricing_uri = URI("https://api.appstoreconnect.apple.com/v1/appPriceSchedules")
-      pricing_request = Net::HTTP::Post.new(pricing_uri)
-      pricing_request['Authorization'] = "Bearer #{token}"
-      pricing_request['Content-Type'] = 'application/json'
-      
-      pricing_data = {
-        data: {
-          type: "appPriceSchedules",
-          attributes: {
-            baseTerritory: "USA",
-            manualPrices: [
-              {
-                territory: "USA",
-                startDate: Time.now.strftime("%Y-%m-%d")
-              }
-            ]
-          },
-          relationships: {
-            app: {
-              data: {
-                type: "apps",
-                id: app_id
-              }
-            },
-            appPricePoint: {
-              data: {
-                type: "appPricePoints",
-                id: "eyJzIjoiVVNBIiwidCI6IjAifQ" # Tier 0 (Free)
-              }
-            }
-          }
-        }
-      }
-      
-      pricing_request.body = pricing_data.to_json
-      pricing_response = http.request(pricing_request)
-      
-      if pricing_response.code.to_i >= 200 && pricing_response.code.to_i < 300
-        UI.success("Pricing set to free successfully")
-      else
-        UI.error("Failed to set pricing: #{pricing_response.body}")
-      end
-    else
-      UI.error("App not found for pricing setup")
-    end
-  rescue => ex
-    UI.error("Pricing setup failed: #{ex.message}")
   end
 
   desc "Full deployment pipeline"
