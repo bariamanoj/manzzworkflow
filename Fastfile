@@ -36,18 +36,7 @@ platform :ios do
 
   desc "Setup code signing"
   lane :setup_signing do
-    # Decode hex API key to avoid GitHub formatting issues
-    hex_key = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
-    decoded_key = [hex_key].pack('H*')
-    
-    app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-      key_content: decoded_key,
-      duration: 1200,
-      in_house: false
-    )
-
+    # Skip API key setup for match - use username/password auth instead
     create_keychain(
       name: "fastlane_tmp_keychain",
       password: "temppassword123",
