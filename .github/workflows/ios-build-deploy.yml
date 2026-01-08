@@ -88,20 +88,7 @@ jobs:
     - name: Create API Key file
       run: |
         cd target-repo
-        mkdir -p .private_keys
-        echo "Creating API key file..."
-        cat > .private_keys/AuthKey_762ZATSHW9.p8 << 'EOF'
-        -----BEGIN PRIVATE KEY-----
-        MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgifib21Mf+cSHv9S6
-        AoHkFkd2GFpXZ22AvrgtSP9cmGCgCgYIKoZIzj0DAQehRANCAARePKPxfPXkFAq/
-        mcV5YdQ0XkNANofE/30la4lXOleCkJihMPvgt6W6e1sjP+4+aFOv7nL1aRCctFR/
-        h/IIUUyP
-        -----END PRIVATE KEY-----
-        EOF
-        echo "API key file created:"
-        ls -la .private_keys/
-        echo "File content:"
-        cat .private_keys/AuthKey_762ZATSHW9.p8
+        echo "Skipping API key file creation - using environment variables directly"
 
     - name: Create Fastfile
       run: |
@@ -138,12 +125,13 @@ jobs:
       continue-on-error: true
       working-directory: target-repo
       env:
+        FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+        FASTLANE_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
         APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
         APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-        APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
-        FASTLANE_SESSION_SECRET: ${{ secrets.FASTLANE_SESSION }}
-        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD_SECRET: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
-        MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         APP_NAME: ${{ github.event.inputs.app_name }}
         BUNDLE_IDENTIFIER: ${{ github.event.inputs.bundle_identifier }}
         FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT: 120

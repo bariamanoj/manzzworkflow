@@ -18,13 +18,6 @@ platform :ios do
   desc "Create app on App Store Connect if it doesn't exist"
   lane :create_app do
     begin
-      # Use session-based auth for produce (API key not supported)
-      ENV["FASTLANE_SESSION"] = ENV["FASTLANE_SESSION_SECRET"]
-      ENV["FASTLANE_PASSWORD"] = ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD_SECRET"]
-      
-      # Debug: Check if session is set
-      UI.message("FASTLANE_SESSION length: #{ENV['FASTLANE_SESSION']&.length || 'nil'}")
-      
       produce(
         username: "dohrasanket@gmail.com",
         app_identifier: ENV["BUNDLE_IDENTIFIER"],
@@ -43,73 +36,22 @@ platform :ios do
 
   desc "Setup code signing"
   lane :setup_signing do
-    # Use hardcoded API key file path
-    api_key_path = ".private_keys/AuthKey_762ZATSHW9.p8"
-    
-    UI.message("API Key file path: #{api_key_path}")
-    UI.message("API Key file exists: #{File.exist?(api_key_path)}")
-    
-    if File.exist?(api_key_path)
-      api_key_content = File.read(api_key_path)
-      UI.message("API Key content length: #{api_key_content.length}")
-      
-      lines = api_key_content.split("\n")
-      UI.message("First line: '#{lines.first}'")
-      UI.message("Last line: '#{lines.last}'")
-      UI.message("Total lines: #{lines.length}")
-    end
-    
-    api_key = app_store_connect_api_key(
-      key_id: "762ZATSHW9",
-      issuer_id: "b0a700be-f8fa-481c-bb07-9992a2e2052d",
-      key_filepath: api_key_path
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"],
+      duration: 1200,
+      in_house: false
     )
 
-    # Test API key with a simple call
-    begin
-      require 'jwt'
-      require 'net/http'
-      
-      api_key_content = File.read(api_key_path)
-      private_key = OpenSSL::PKey::EC.new(api_key_content)
-      payload = {
-        iss: "b0a700be-f8fa-481c-bb07-9992a2e2052d",
-        exp: Time.now.to_i + 1200,
-        aud: "appstoreconnect-v1"
-      }
-      token = JWT.encode(payload, private_key, "ES256", { kid: "762ZATSHW9" })
-      
-      uri = URI("https://api.appstoreconnect.apple.com/v1/apps")
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      
-      request = Net::HTTP::Get.new(uri)
-      request['Authorization'] = "Bearer #{token}"
-      request['Content-Type'] = 'application/json'
-      
-      response = http.request(request)
-      UI.message("API Key test response: #{response.code}")
-      
-      if response.code.to_i >= 400
-        UI.error("API Key test failed: #{response.body}")
-      else
-        UI.success("API Key is valid")
-      end
-    rescue => ex
-      UI.error("API Key test error: #{ex.message}")
-    end
-
     create_keychain(
-      name: "temp_keychain",
-      password: "temp_password",
+      name: "fastlane_tmp_keychain",
+      password: "temppassword123",
       default_keychain: true,
       unlock: true,
       timeout: 3600,
       lock_when_sleeps: false
     )
-
-    # Disable readonly mode explicitly
-    ENV["MATCH_READONLY"] = "false"
 
     match(
       type: "appstore",
@@ -117,10 +59,9 @@ platform :ios do
       git_url: "https://github.com/bariamanoj/ios-certificates-new",
       username: "dohrasanket@gmail.com",
       team_id: "42FLQUC3A9",
-      keychain_name: "temp_keychain",
-      keychain_password: "temp_password",
-      api_key: api_key,
-      readonly: false
+      readonly: false,
+      keychain_name: "fastlane_tmp_keychain",
+      keychain_password: "temppassword123"
     )
   end
 
