@@ -43,6 +43,11 @@ platform :ios do
 
   desc "Setup code signing"
   lane :setup_signing do
+    # Debug API key
+    UI.message("API Key ID length: #{ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']&.length || 'nil'}")
+    UI.message("API Key Issuer ID length: #{ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID']&.length || 'nil'}")
+    UI.message("API Key content length: #{ENV['APP_STORE_CONNECT_API_KEY_KEY']&.length || 'nil'}")
+    
     api_key = app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
       issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
