@@ -54,6 +54,39 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"]
     )
 
+    # Test API key with a simple call
+    begin
+      require 'jwt'
+      require 'net/http'
+      
+      private_key = OpenSSL::PKey::EC.new(ENV["APP_STORE_CONNECT_API_KEY_KEY"])
+      payload = {
+        iss: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+        exp: Time.now.to_i + 1200,
+        aud: "appstoreconnect-v1"
+      }
+      token = JWT.encode(payload, private_key, "ES256", { kid: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"] })
+      
+      uri = URI("https://api.appstoreconnect.apple.com/v1/apps")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      
+      request = Net::HTTP::Get.new(uri)
+      request['Authorization'] = "Bearer #{token}"
+      request['Content-Type'] = 'application/json'
+      
+      response = http.request(request)
+      UI.message("API Key test response: #{response.code}")
+      
+      if response.code.to_i >= 400
+        UI.error("API Key test failed: #{response.body}")
+      else
+        UI.success("API Key is valid")
+      end
+    rescue => ex
+      UI.error("API Key test error: #{ex.message}")
+    end
+
     create_keychain(
       name: "temp_keychain",
       password: "temp_password",
