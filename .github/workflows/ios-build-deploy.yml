@@ -1,4 +1,4 @@
-name: iOS Build and Deploy
+name: iOS Build and Deploy v2
 
 on:
   workflow_dispatch:
