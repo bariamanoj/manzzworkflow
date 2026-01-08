@@ -36,8 +36,9 @@ platform :ios do
 
   desc "Setup code signing"
   lane :setup_signing do
-    # Decode base64 API key to avoid GitHub formatting issues
-    decoded_key = Base64.decode64(ENV["APP_STORE_CONNECT_API_KEY_KEY"])
+    # Decode hex API key to avoid GitHub formatting issues
+    hex_key = ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+    decoded_key = [hex_key].pack('H*')
     
     app_store_connect_api_key(
       key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
