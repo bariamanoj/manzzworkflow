@@ -79,8 +79,8 @@ platform :ios do
 
   desc "Upload to TestFlight"
   lane :upload_testflight do
-    # Find the IPA file
-    ipa_file = Dir.glob("build/ipa/*.ipa").first
+    # Find the IPA file in multiple locations
+    ipa_file = Dir.glob("build/ipa/*.ipa").first || Dir.glob("build/*.ipa").first
     
     if ipa_file && File.exist?(ipa_file)
       puts "✅ Found IPA file: #{ipa_file}"
@@ -97,9 +97,9 @@ platform :ios do
       
       puts "✅ Successfully uploaded to TestFlight!"
     else
-      puts "❌ No IPA file found in build/ipa/ directory"
-      puts "Available files:"
-      sh "find build -name '*.ipa' || echo 'No IPA files found'"
+      puts "❌ No IPA file found"
+      puts "Searching in all locations:"
+      sh "find . -name '*.ipa' -type f || echo 'No IPA files found anywhere'"
     end
   end
 
