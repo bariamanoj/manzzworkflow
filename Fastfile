@@ -98,24 +98,6 @@ platform :ios do
     # Content rights
     File.write("fastlane/metadata/third_party_content.txt", "No, it does not contain, show, or access third-party content")
     
-    # Age rating - all NO
-    age_rating = {
-      "CARTOON_FANTASY_VIOLENCE" => 0,
-      "REALISTIC_VIOLENCE" => 0,
-      "PROLONGED_GRAPHIC_VIOLENCE" => 0,
-      "PROFANITY_CRUDE_HUMOR" => 0,
-      "MATURE_SUGGESTIVE" => 0,
-      "HORROR" => 0,
-      "MEDICAL_TREATMENT_INFO" => 0,
-      "ALCOHOL_TOBACCO_DRUGS" => 0,
-      "GAMBLING" => 0,
-      "SEXUAL_CONTENT_NUDITY" => 0,
-      "GRAPHIC_SEXUAL_CONTENT_NUDITY" => 0,
-      "UNRESTRICTED_WEB_ACCESS" => 0,
-      "GAMBLING_CONTESTS" => 0
-    }
-    File.write("age_rating_config.json", age_rating.to_json)
-    
     # Use deliver with session auth
     deliver(
       username: "dohrasanket@gmail.com",
@@ -124,8 +106,7 @@ platform :ios do
       skip_screenshots: true,
       force: true,
       metadata_path: "./fastlane/metadata",
-      submit_for_review: false,
-      app_rating_config_path: "./age_rating_config.json"
+      submit_for_review: false
     )
     
     # Privacy data collection instructions
@@ -136,6 +117,10 @@ platform :ios do
     UI.message("   - Identifiers > Device ID (Analytics, App Functionality, Linked to User, Used for Tracking)")
     UI.message("   - Usage Data (Analytics, App Functionality, Linked to User, Used for Tracking)")
     UI.message("   - Advertising Data (Analytics, App Functionality, Linked to User, Used for Tracking)")
+    
+    UI.important("Age Rating must be configured manually in App Store Connect:")
+    UI.message("1. Go to App Store Connect > Your App > App Information > Age Rating")
+    UI.message("2. Answer 'NO' to all age rating questions for a 4+ rating")
   end
 
   desc "Setup privacy details"
