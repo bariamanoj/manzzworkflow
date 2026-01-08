@@ -10,7 +10,7 @@ platform :ios do
     begin
       # Use session-based auth for produce (API key not supported)
       ENV["FASTLANE_SESSION"] = ENV["FASTLANE_SESSION_SECRET"]
-      ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD"] = ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD_SECRET"]
+      ENV["FASTLANE_PASSWORD"] = ENV["FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD_SECRET"]
       
       produce(
         username: "dohrasanket@gmail.com",
@@ -53,7 +53,8 @@ platform :ios do
       team_id: "42FLQUC3A9",
       keychain_name: "temp_keychain",
       keychain_password: "temp_password",
-      api_key: api_key
+      api_key: api_key,
+      readonly: false
     )
   end
 
