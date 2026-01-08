@@ -63,7 +63,8 @@ platform :ios do
       git_url: "https://github.com/bariamanoj/ios-certificates-new",
       username: "dohrasanket@gmail.com",
       team_id: "42FLQUC3A9",
-      readonly: false,
+      readonly: true,
+      generate_apple_certs: false,
       keychain_name: "fastlane_tmp_keychain",
       keychain_password: "temppassword123"
     )
