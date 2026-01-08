@@ -43,8 +43,8 @@ platform :ios do
 
   desc "Setup code signing"
   lane :setup_signing do
-    # Use API key file instead of environment variable
-    api_key_path = ".private_keys/AuthKey_#{ENV['APP_STORE_CONNECT_API_KEY_KEY_ID']}.p8"
+    # Use hardcoded API key file path
+    api_key_path = ".private_keys/AuthKey_762ZATSHW9.p8"
     
     UI.message("API Key file path: #{api_key_path}")
     UI.message("API Key file exists: #{File.exist?(api_key_path)}")
@@ -60,8 +60,8 @@ platform :ios do
     end
     
     api_key = app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+      key_id: "762ZATSHW9",
+      issuer_id: "b0a700be-f8fa-481c-bb07-9992a2e2052d",
       key_filepath: api_key_path
     )
 
@@ -73,11 +73,11 @@ platform :ios do
       api_key_content = File.read(api_key_path)
       private_key = OpenSSL::PKey::EC.new(api_key_content)
       payload = {
-        iss: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+        iss: "b0a700be-f8fa-481c-bb07-9992a2e2052d",
         exp: Time.now.to_i + 1200,
         aud: "appstoreconnect-v1"
       }
-      token = JWT.encode(payload, private_key, "ES256", { kid: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"] })
+      token = JWT.encode(payload, private_key, "ES256", { kid: "762ZATSHW9" })
       
       uri = URI("https://api.appstoreconnect.apple.com/v1/apps")
       http = Net::HTTP.new(uri.host, uri.port)

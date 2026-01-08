@@ -89,7 +89,8 @@ jobs:
       run: |
         cd target-repo
         mkdir -p .private_keys
-        cat > .private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}.p8 << 'EOF'
+        echo "Creating API key file..."
+        cat > .private_keys/AuthKey_762ZATSHW9.p8 << 'EOF'
         -----BEGIN PRIVATE KEY-----
         MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgifib21Mf+cSHv9S6
         AoHkFkd2GFpXZ22AvrgtSP9cmGCgCgYIKoZIzj0DAQehRANCAARePKPxfPXkFAq/
@@ -97,6 +98,10 @@ jobs:
         h/IIUUyP
         -----END PRIVATE KEY-----
         EOF
+        echo "API key file created:"
+        ls -la .private_keys/
+        echo "File content:"
+        cat .private_keys/AuthKey_762ZATSHW9.p8
 
     - name: Create Fastfile
       run: |
