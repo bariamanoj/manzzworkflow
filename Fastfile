@@ -122,8 +122,26 @@ platform :ios do
 
   desc "Upload metadata to App Store"
   lane :upload_metadata do
-    puts "Skipping metadata upload - API key issues in CI"
-    puts "Metadata would be uploaded here in production"
+    # Create metadata directory structure
+    sh "mkdir -p fastlane/metadata/en-US"
+    
+    # Create metadata files
+    File.write("fastlane/metadata/en-US/name.txt", ENV["APP_NAME"])
+    File.write("fastlane/metadata/en-US/description.txt", ENV["APP_DESCRIPTION"])
+    File.write("fastlane/metadata/en-US/marketing_url.txt", ENV["MARKETING_URL"])
+    File.write("fastlane/metadata/en-US/privacy_url.txt", ENV["PRIVACY_POLICY_URL"])
+    File.write("fastlane/metadata/en-US/support_url.txt", ENV["SUPPORT_URL"])
+    File.write("fastlane/metadata/en-US/keywords.txt", "demo,sample,test,ios,app")
+    
+    # Use deliver with session auth (no API key needed)
+    deliver(
+      app_identifier: ENV["BUNDLE_IDENTIFIER"],
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      force: true,
+      metadata_path: "./fastlane/metadata",
+      submit_for_review: false
+    )
   end
 
   desc "Setup privacy details"
