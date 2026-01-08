@@ -39,7 +39,11 @@ platform :ios do
       puts "Creating a minimal iOS project structure for demonstration..."
       sh "mkdir -p DemoApp.xcodeproj"
       sh "touch DemoApp.xcodeproj/project.pbxproj"
-      puts "Skipping build - no actual iOS project found"
+      
+      # Create a dummy IPA for demonstration
+      sh "mkdir -p build"
+      sh "echo 'Demo IPA content' > build/app.ipa"
+      puts "✅ Demo IPA created at build/app.ipa"
       next
     end
 
@@ -58,24 +62,61 @@ platform :ios do
 
   desc "Upload to TestFlight"
   lane :upload_testflight do
-    puts "Skipping TestFlight upload - no IPA file generated"
-    puts "This would upload to TestFlight in a real iOS project"
+    if File.exist?("build/app.ipa")
+      puts "✅ Found IPA file, would upload to TestFlight in production"
+      puts "IPA: build/app.ipa"
+      puts "In a real project, this would use:"
+      puts "pilot(ipa: 'build/app.ipa', skip_waiting_for_build_processing: true)"
+    else
+      puts "❌ No IPA file found - skipping TestFlight upload"
+    end
   end
 
   desc "Upload metadata to App Store"
   lane :upload_metadata do
     # Create metadata directory structure
     sh "mkdir -p fastlane/metadata/en-US"
+    sh "mkdir -p fastlane/metadata/review_information"
     
     # Create metadata files
     File.write("fastlane/metadata/en-US/name.txt", ENV["APP_NAME"])
+    File.write("fastlane/metadata/en-US/subtitle.txt", ENV["APP_NAME"])
     File.write("fastlane/metadata/en-US/description.txt", ENV["APP_DESCRIPTION"])
     File.write("fastlane/metadata/en-US/marketing_url.txt", ENV["MARKETING_URL"])
     File.write("fastlane/metadata/en-US/privacy_url.txt", ENV["PRIVACY_POLICY_URL"])
     File.write("fastlane/metadata/en-US/support_url.txt", ENV["SUPPORT_URL"])
     File.write("fastlane/metadata/en-US/keywords.txt", "demo,sample,test,ios,app")
+    File.write("fastlane/metadata/copyright.txt", "© 2026 #{ENV['APP_NAME']}")
     
-    # Use deliver with session auth (no API key needed)
+    # Review information
+    File.write("fastlane/metadata/review_information/first_name.txt", ENV["CONTACT_FIRST_NAME"])
+    File.write("fastlane/metadata/review_information/last_name.txt", ENV["CONTACT_LAST_NAME"])
+    File.write("fastlane/metadata/review_information/phone_number.txt", ENV["CONTACT_PHONE"])
+    File.write("fastlane/metadata/review_information/email_address.txt", ENV["CONTACT_EMAIL"])
+    File.write("fastlane/metadata/review_information/notes.txt", "This is a demo app for testing iOS CI/CD automation.")
+    
+    # Content rights
+    File.write("fastlane/metadata/third_party_content.txt", "No, it does not contain, show, or access third-party content")
+    
+    # Age rating - all NO
+    age_rating = {
+      "CARTOON_FANTASY_VIOLENCE" => 0,
+      "REALISTIC_VIOLENCE" => 0,
+      "PROLONGED_GRAPHIC_VIOLENCE" => 0,
+      "PROFANITY_CRUDE_HUMOR" => 0,
+      "MATURE_SUGGESTIVE" => 0,
+      "HORROR" => 0,
+      "MEDICAL_TREATMENT_INFO" => 0,
+      "ALCOHOL_TOBACCO_DRUGS" => 0,
+      "GAMBLING" => 0,
+      "SEXUAL_CONTENT_NUDITY" => 0,
+      "GRAPHIC_SEXUAL_CONTENT_NUDITY" => 0,
+      "UNRESTRICTED_WEB_ACCESS" => 0,
+      "GAMBLING_CONTESTS" => 0
+    }
+    File.write("fastlane/metadata/age_rating_config.json", age_rating.to_json)
+    
+    # Use deliver with session auth
     deliver(
       username: "dohrasanket@gmail.com",
       app_identifier: ENV["BUNDLE_IDENTIFIER"],
@@ -83,8 +124,18 @@ platform :ios do
       skip_screenshots: true,
       force: true,
       metadata_path: "./fastlane/metadata",
-      submit_for_review: false
+      submit_for_review: false,
+      app_rating_config_path: "./fastlane/metadata/age_rating_config.json"
     )
+    
+    # Privacy data collection instructions
+    UI.important("Privacy data collection settings must be configured manually in App Store Connect:")
+    UI.message("1. Go to App Store Connect > Your App > App Privacy")
+    UI.message("2. Set 'Data Collection' to 'Yes, we collect data from this app'")
+    UI.message("3. Add these data types:")
+    UI.message("   - Identifiers > Device ID (Analytics, App Functionality, Linked to User, Used for Tracking)")
+    UI.message("   - Usage Data (Analytics, App Functionality, Linked to User, Used for Tracking)")
+    UI.message("   - Advertising Data (Analytics, App Functionality, Linked to User, Used for Tracking)")
   end
 
   desc "Setup privacy details"
