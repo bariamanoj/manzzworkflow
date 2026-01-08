@@ -114,7 +114,7 @@ platform :ios do
       "UNRESTRICTED_WEB_ACCESS" => 0,
       "GAMBLING_CONTESTS" => 0
     }
-    File.write("fastlane/metadata/age_rating_config.json", age_rating.to_json)
+    File.write("age_rating_config.json", age_rating.to_json)
     
     # Use deliver with session auth
     deliver(
@@ -125,7 +125,7 @@ platform :ios do
       force: true,
       metadata_path: "./fastlane/metadata",
       submit_for_review: false,
-      app_rating_config_path: "./fastlane/metadata/age_rating_config.json"
+      app_rating_config_path: "./age_rating_config.json"
     )
     
     # Privacy data collection instructions
