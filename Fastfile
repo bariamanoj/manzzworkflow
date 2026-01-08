@@ -45,6 +45,9 @@ platform :ios do
       lock_when_sleeps: false
     )
 
+    # Disable readonly mode explicitly
+    ENV["MATCH_READONLY"] = "false"
+
     match(
       type: "appstore",
       app_identifier: ENV["BUNDLE_IDENTIFIER"],
