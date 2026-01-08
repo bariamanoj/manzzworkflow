@@ -34,50 +34,72 @@ platform :ios do
     workspace_path = Dir.glob("*.xcworkspace").first
     project_path = Dir.glob("*.xcodeproj").first
 
-    if workspace_path.nil? && project_path.nil?
+    if workspace_path
+      scheme = File.basename(workspace_path, ".xcworkspace")
+      puts "📱 Building workspace: #{workspace_path}"
+      
+      build_app(
+        workspace: workspace_path,
+        scheme: scheme,
+        configuration: "Release",
+        export_method: "app-store",
+        skip_codesigning: true,
+        archive_path: "./build/#{scheme}.xcarchive",
+        output_directory: "./build/ipa",
+        output_name: "#{ENV['APP_NAME']}.ipa"
+      )
+    elsif project_path
+      scheme = File.basename(project_path, ".xcodeproj")
+      puts "📱 Building project: #{project_path}"
+      
+      build_app(
+        project: project_path,
+        scheme: scheme,
+        configuration: "Release",
+        export_method: "app-store",
+        skip_codesigning: true,
+        archive_path: "./build/#{scheme}.xcarchive",
+        output_directory: "./build/ipa",
+        output_name: "#{ENV['APP_NAME']}.ipa"
+      )
+    else
       puts "No .xcworkspace or .xcodeproj found in target repository"
       puts "Creating a minimal iOS project structure for demonstration..."
       sh "mkdir -p DemoApp.xcodeproj"
       sh "touch DemoApp.xcodeproj/project.pbxproj"
       
-      # Create a dummy IPA for demonstration
-      sh "mkdir -p build"
-      sh "echo 'Demo IPA content' > build/app.ipa"
-      puts "✅ Demo IPA created at build/app.ipa"
-      next
+      # Create a demo IPA for demonstration
+      sh "mkdir -p build/ipa"
+      sh "mkdir -p build/Payload/DemoApp.app"
+      sh "echo 'Demo App Binary' > build/Payload/DemoApp.app/DemoApp"
+      sh "cd build && zip -r ipa/#{ENV['APP_NAME']}.ipa Payload/"
+      puts "✅ Demo IPA created at build/ipa/#{ENV['APP_NAME']}.ipa"
     end
-
-    # Build the app
-    gym(
-      scheme: ENV["SCHEME"] || "YourAppScheme",
-      workspace: workspace_path,
-      project: project_path,
-      configuration: "Release",
-      output_directory: "./build",
-      output_name: "app.ipa",
-      clean: true,
-      export_method: "app-store"
-    )
   end
 
   desc "Upload to TestFlight"
   lane :upload_testflight do
-    if File.exist?("build/app.ipa")
-      puts "✅ Found IPA file - creating proper IPA structure"
+    # Find the IPA file
+    ipa_file = Dir.glob("build/ipa/*.ipa").first
+    
+    if ipa_file && File.exist?(ipa_file)
+      puts "✅ Found IPA file: #{ipa_file}"
       
-      # Create a proper IPA structure for demonstration
-      sh "mkdir -p build/Payload"
-      sh "mkdir -p build/Payload/DemoApp.app"
-      sh "echo 'Demo App Binary' > build/Payload/DemoApp.app/DemoApp"
-      sh "rm -f build/app.ipa"  # Remove the text file first
-      sh "cd build && zip -r demo.ipa Payload/"
+      # Upload to TestFlight using upload_to_testflight
+      upload_to_testflight(
+        username: "dohrasanket@gmail.com",
+        ipa: ipa_file,
+        skip_waiting_for_build_processing: true,
+        skip_submission: true,
+        distribute_external: false,
+        notify_external_testers: false
+      )
       
-      puts "✅ Demo IPA created: build/demo.ipa"
-      puts "In production, this would upload to TestFlight using:"
-      puts "pilot(ipa: 'build/demo.ipa', skip_waiting_for_build_processing: true)"
-      puts "Skipping actual upload since this is a demo IPA"
+      puts "✅ Successfully uploaded to TestFlight!"
     else
-      puts "❌ No IPA file found - skipping TestFlight upload"
+      puts "❌ No IPA file found in build/ipa/ directory"
+      puts "Available files:"
+      sh "find build -name '*.ipa' || echo 'No IPA files found'"
     end
   end
 
