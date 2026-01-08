@@ -93,33 +93,6 @@ platform :ios do
     puts "This would upload to TestFlight in a real iOS project"
   end
 
-  desc "Upload metadata"
-  lane :upload_metadata do
-    api_key = app_store_connect_api_key(
-      key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
-      issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
-      key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"]
-    )
-
-    # Create age rating config
-    age_rating_config = {
-      "CARTOON_FANTASY_VIOLENCE" => 0,
-      "REALISTIC_VIOLENCE" => 0,
-      "PROLONGED_GRAPHIC_VIOLENCE" => 0,
-      "PROFANITY_CRUDE_HUMOR" => 0,
-      "MATURE_SUGGESTIVE" => 0,
-      "HORROR" => 0,
-      "MEDICAL_TREATMENT_INFO" => 0,
-      "ALCOHOL_TOBACCO_DRUGS" => 0,
-      "GAMBLING" => 0,
-      "SEXUAL_CONTENT_NUDITY" => 0,
-      "GRAPHIC_SEXUAL_CONTENT_NUDITY" => 0,
-      "UNRESTRICTED_WEB_ACCESS" => 0,
-      "GAMBLING_CONTESTS" => 0
-    }
-    
-    File.write("age_rating.json", age_rating_config.to_json)
-
   desc "Upload metadata to App Store"
   lane :upload_metadata do
     # Create metadata directory structure
