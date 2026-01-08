@@ -5,6 +5,7 @@ platform :ios do
   lane :create_app do
     begin
       produce(
+        username: "dohrasanket@gmail.com",
         app_identifier: ENV["BUNDLE_IDENTIFIER"],
         app_name: ENV["APP_NAME"],
         language: "English",
@@ -76,6 +77,7 @@ platform :ios do
     
     # Use deliver with session auth (no API key needed)
     deliver(
+      username: "dohrasanket@gmail.com",
       app_identifier: ENV["BUNDLE_IDENTIFIER"],
       skip_binary_upload: true,
       skip_screenshots: true,
