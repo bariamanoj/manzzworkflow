@@ -109,7 +109,6 @@ jobs:
         echo "${{ github.event.inputs.marketing_url }}" > fastlane/metadata/en-US/marketing_url.txt
         echo "${{ github.event.inputs.privacy_policy_url }}" > fastlane/metadata/en-US/privacy_url.txt
         echo "${{ github.event.inputs.support_url }}" > fastlane/metadata/en-US/support_url.txt
-        echo "@Manzzfinal 2025" > fastlane/metadata/en-US/copyright.txt
         echo "UTILITIES" > fastlane/metadata/en-US/primary_category.txt
         echo "Manzzfinal test1" > fastlane/metadata/en-US/keywords.txt
         

@@ -46,7 +46,7 @@ platform :ios do
         skip_codesigning: true,
         archive_path: "./build/#{scheme}.xcarchive",
         output_directory: "./build/ipa",
-        output_name: "#{ENV['APP_NAME']}.ipa"
+        output_name: "#{ENV['APP_NAME'].gsub(' ', '_')}.ipa"
       )
     elsif project_path
       scheme = File.basename(project_path, ".xcodeproj")
@@ -60,7 +60,7 @@ platform :ios do
         skip_codesigning: true,
         archive_path: "./build/#{scheme}.xcarchive",
         output_directory: "./build/ipa",
-        output_name: "#{ENV['APP_NAME']}.ipa"
+        output_name: "#{ENV['APP_NAME'].gsub(' ', '_')}.ipa"
       )
     else
       puts "No .xcworkspace or .xcodeproj found in target repository"
@@ -72,8 +72,8 @@ platform :ios do
       sh "mkdir -p build/ipa"
       sh "mkdir -p build/Payload/DemoApp.app"
       sh "echo 'Demo App Binary' > build/Payload/DemoApp.app/DemoApp"
-      sh "cd build && zip -r ipa/#{ENV['APP_NAME']}.ipa Payload/"
-      puts "✅ Demo IPA created at build/ipa/#{ENV['APP_NAME']}.ipa"
+      sh "cd build && zip -r 'ipa/#{ENV['APP_NAME'].gsub(' ', '_')}.ipa' Payload/"
+      puts "✅ Demo IPA created at build/ipa/#{ENV['APP_NAME'].gsub(' ', '_')}.ipa"
     end
   end
 
