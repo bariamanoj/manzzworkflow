@@ -182,9 +182,9 @@ jobs:
             UI.message("Project found: #{project_path}")
             
             if workspace_path
-              build_config = { workspace: workspace_path }
+              build_config = { workspace: File.expand_path(workspace_path) }
             elsif project_path
-              build_config = { project: project_path }
+              build_config = { project: File.expand_path(project_path) }
             else
               UI.user_error!("No .xcworkspace or .xcodeproj found")
             end
@@ -192,10 +192,10 @@ jobs:
             gym(
               **build_config,
               scheme: "ManzzContactApp",
-              export_method: "development",  # Use development instead of app-store
-              output_directory: "./build",
+              export_method: "development",
+              output_directory: "../build",
               output_name: "app.ipa",
-              skip_codesigning: true  # Skip code signing for now
+              skip_codesigning: true
             )
           end
 
