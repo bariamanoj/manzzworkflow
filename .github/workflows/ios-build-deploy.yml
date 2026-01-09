@@ -195,7 +195,8 @@ jobs:
               export_method: "development",
               output_directory: "../build",
               output_name: "app.ipa",
-              skip_codesigning: true
+              skip_codesigning: true,
+              export_team_id: "42FLQUC3A9"
             )
           end
 
