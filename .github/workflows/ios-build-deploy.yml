@@ -192,9 +192,7 @@ jobs:
             gym(
               **build_config,
               scheme: "ManzzContactApp",
-              export_method: "development",
-              output_directory: "../build",
-              output_name: "app.ipa",
+              skip_package_ipa: true,
               skip_codesigning: true,
               export_team_id: "42FLQUC3A9"
             )
