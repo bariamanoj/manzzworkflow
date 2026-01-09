@@ -408,6 +408,18 @@ jobs:
         echo "${{ github.event.inputs.contact_email }}" > fastlane/metadata/review_information/email_address.txt
         echo "Test app for ManzTestApp2025" > fastlane/metadata/review_information/notes.txt
 
+    - name: Test API Key
+      run: |
+        echo "Testing API key format..."
+        echo "Key ID: $APP_STORE_CONNECT_API_KEY_KEY_ID"
+        echo "Issuer ID: $APP_STORE_CONNECT_API_KEY_ISSUER_ID"
+        echo "Key length: ${#APP_STORE_CONNECT_API_KEY_KEY}"
+        echo "Key starts with: $(echo "$APP_STORE_CONNECT_API_KEY_KEY" | head -c 30)"
+      env:
+        APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+        APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+        APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+
     - name: Run Fastlane deployment
       continue-on-error: true
       working-directory: target-repo
