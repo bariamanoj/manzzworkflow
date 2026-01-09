@@ -137,18 +137,36 @@ jobs:
               lock_when_sleeps: false
             )
 
-            match(
-              type: "appstore",
-              app_identifier: ENV["BUNDLE_IDENTIFIER"],
-              git_url: "https://github.com/bariamanoj/ios-certificates-new",
-              username: "dohrasanket@gmail.com",
-              team_id: "42FLQUC3A9",
-              keychain_name: "temp_keychain",
-              keychain_password: "temp_password",
-              api_key: api_key,
-              readonly: true,
-              generate_apple_certs: false
-            )
+            begin
+              # Try to use existing certificates first
+              match(
+                type: "appstore",
+                app_identifier: ENV["BUNDLE_IDENTIFIER"],
+                git_url: "https://github.com/bariamanoj/ios-certificates-new",
+                username: "dohrasanket@gmail.com",
+                team_id: "42FLQUC3A9",
+                keychain_name: "temp_keychain",
+                keychain_password: "temp_password",
+                api_key: api_key,
+                readonly: true,
+                generate_apple_certs: false
+              )
+            rescue => ex
+              UI.message("No existing certificates found, creating new ones...")
+              # Create certificates if none exist
+              match(
+                type: "appstore",
+                app_identifier: ENV["BUNDLE_IDENTIFIER"],
+                git_url: "https://github.com/bariamanoj/ios-certificates-new",
+                username: "dohrasanket@gmail.com",
+                team_id: "42FLQUC3A9",
+                keychain_name: "temp_keychain",
+                keychain_password: "temp_password",
+                api_key: api_key,
+                readonly: false,
+                generate_apple_certs: true
+              )
+            end
           end
 
           desc "Build IPA"
