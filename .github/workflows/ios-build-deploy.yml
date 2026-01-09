@@ -465,6 +465,8 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: build-artifacts
-        path: target-repo/build/
+        name: ios-archive-successful
+        path: |
+          ~/Library/Developer/Xcode/Archives/
+          target-repo/build/
         retention-days: 7
