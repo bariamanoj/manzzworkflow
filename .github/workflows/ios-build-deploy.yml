@@ -380,9 +380,58 @@ jobs:
 
           desc "Full deployment pipeline"
           lane :deploy do
-            # Skip app creation and signing for now, just build
-            build_ipa
-            UI.success("Build completed successfully!")
+            # Create certificates first, then build and upload
+            begin
+              setup_signing
+            rescue => ex
+              UI.message("Certificate setup failed, trying to create new ones...")
+              # Create certificates if setup fails
+              api_key = app_store_connect_api_key(
+                key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+                issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+                key_content: ENV["APP_STORE_CONNECT_API_KEY_KEY"]
+              )
+              
+              match(
+                type: "appstore",
+                app_identifier: ENV["BUNDLE_IDENTIFIER"],
+                git_url: "https://github.com/bariamanoj/ios-certificates-new",
+                username: "dohrasanket@gmail.com",
+                team_id: "42FLQUC3A9",
+                keychain_name: "temp_keychain",
+                keychain_password: "temp_password",
+                api_key: api_key,
+                readonly: false,
+                generate_apple_certs: true
+              )
+            end
+            
+            build_ipa_signed
+            upload_testflight
+            UI.success("Deployment completed successfully!")
+          end
+
+          desc "Build signed IPA"
+          lane :build_ipa_signed do
+            # Auto-detect workspace or project - look in parent directory
+            workspace_path = Dir.glob("../ManzzContactApp.xcworkspace").first
+            project_path = Dir.glob("../ManzzContactApp.xcodeproj").first
+            
+            if workspace_path
+              build_config = { workspace: File.expand_path(workspace_path) }
+            elsif project_path
+              build_config = { project: File.expand_path(project_path) }
+            else
+              UI.user_error!("No .xcworkspace or .xcodeproj found")
+            end
+
+            gym(
+              **build_config,
+              scheme: "ManzzContactApp",
+              export_method: "app-store",
+              output_directory: "../build",
+              output_name: "app.ipa"
+            )
           end
         end
         EOF
