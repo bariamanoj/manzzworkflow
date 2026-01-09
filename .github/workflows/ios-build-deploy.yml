@@ -173,9 +173,13 @@ jobs:
           lane :build_ipa do
             # Skip signing setup, build without certificates for now
             
-            # Auto-detect workspace or project
-            workspace_path = Dir.glob("*.xcworkspace").first
-            project_path = Dir.glob("*.xcodeproj").first
+            # Auto-detect workspace or project - look in current directory
+            workspace_path = Dir.glob("ManzzContactApp.xcworkspace").first
+            project_path = Dir.glob("ManzzContactApp.xcodeproj").first
+            
+            UI.message("Current directory: #{Dir.pwd}")
+            UI.message("Workspace found: #{workspace_path}")
+            UI.message("Project found: #{project_path}")
             
             if workspace_path
               build_config = { workspace: workspace_path }
